@@ -14,6 +14,14 @@ Once the project was generated, after running `dotnet run` we got the [swagger](
 http://localhost:5028/swagger/index.html
 ```
 
+We could also see the raw JSON output of the api by visiting:
+```
+http://localhost:5028/weatherforecast
+```
+
+> [!NOTE]
+> You can get the last segment of the URL, by checking in the `controllers` folder; there it must be a file named `WeatherForecastController`. The **endpoint** for hitting this controller, it's the controller's name (case insensitive) without the word `Controller`.
+
 ## Enabling HTTPS
 
 Even though we created our project with **HTTPS support**, according to the [docs](https://learn.microsoft.com/en-us/aspnet/core/tutorials/first-web-api?view=aspnetcore-8.0&tabs=visual-studio-code), to **enable** serving the content in the HTTPS URL, we have to:
@@ -41,3 +49,9 @@ And the **swagger** interface at:
 ```
 https://localhost:7188/swagger/index.html
 ```
+
+## Modifying the API routes
+
+Since we generated our API with controllers, each **URL endpoint** can be found inside each controller. On top of each **controller class**, we can find an [attribute](https://learn.microsoft.com/en-us/dotnet/csharp/advanced-topics/reflection-and-attributes/) that determines the **base URL route**. There we can modify the base route:
+
+- From `[Route("[controller]")]` to `[Route("api/[controller]")]`, so that from now on the endpoint would be at `api/weatherforecast`. 
