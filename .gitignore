@@ -1,0 +1,9 @@
+# .NET Core
+bin/
+obj/
+
+# Environment variables
+.env
+
+# Mac
+.DS_Store
