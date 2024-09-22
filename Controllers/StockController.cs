@@ -74,8 +74,7 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
-        [HttpPut]
-        [Route("api/{id}")]
+        [HttpPut("{id}")]
         public IActionResult UpdateStock([FromRoute] int id, [FromBody] UpdateStockRequestDto stockDto)
         {
             // Find the stock by id
@@ -98,6 +97,19 @@ namespace WebApi.Controllers
             _context.SaveChanges();
             // return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
             return Ok(stockModel.ToStockDto());
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteStock([FromRoute] int id)
+        {
+            var stockModel = _context.Stocks.FirstOrDefault(s => s.Id == id);
+            if (stockModel == null)
+            {
+                return NotFound();
+            }
+            _context.Stocks.Remove(stockModel);
+            _context.SaveChanges();
+            return NoContent();
         }
     }
 }
