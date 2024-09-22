@@ -250,3 +250,34 @@ The [ApiController attribute](https://learn.microsoft.com/en-us/aspnet/core/web-
 - Binding source parameter inference
 - Multipart/form-data request inference
 - Problem details for error status codes
+
+## Data Transfer Objects (DTOs)
+
+Whenever we retrieve some **entity** from a database, very frequently we want to trim down the information we send down to the user. In order to do that, we can define a [DTO](https://learn.microsoft.com/en-us/aspnet/web-api/overview/data/using-web-api-with-entity-framework/part-5), which is an [object](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/object-oriented/objects) that defines how the data will be sent over the network.
+
+> [!NOTE]
+> **DTOs**, are **simple objects** that carry data between different layers of an application. Typically contain only **properties** and no behavior (no methods).
+
+For organization, we can create a `DTOs` folder, where we'll place a subfolder for each of our **models**. Inside each subfolder, we can create the **DTO class**.
+
+> [!TIP]
+> In [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design) we have two layers:
+>
+> - **Domain Layer** (Domain Entities): Contains all the core business logic.
+> - **Application Layer** (DTOs): Manages data flow and communication.
+>
+> DTOs are used for trimming down the **entities** from a data store before sending them to the client.
+
+In many applications, usually there are 2 levels of **models**: 
+
+1. **Domain internal models**, which we defined in the `Models` folder.
+2. **Public models**, which are often called DTOs (data transfer objects).
+
+DTOs are the models consumed by a **client**, and usually they are tinier than their domain counterparts. Also, a DTO model may contain properties from few domain models.
+
+### Mappers
+
+Mappers facilitate the conversion of data between different representations, such as between **DTOs** and **domain entities**.
+
+1. **Entity to DTO**: When we fetch an entity from the database, the mapper extracts the relevant information and converts it into a simpler DTO.
+2. **DTO to Entity**: When we receive a DTO (e.g., from a user input form), the mapper takes that DTO and converts it back into a full entity.

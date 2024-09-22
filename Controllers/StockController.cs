@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Data;
+using WebApi.DTO;
+using WebApi.Mappers;
 
 namespace WebApi.Controllers
 {
@@ -29,7 +27,19 @@ namespace WebApi.Controllers
         [HttpGet]
         public IActionResult GetStocks()
         {
-            var stocks = _context.Stocks.ToList();
+            // Return the DTOs instead of the models
+            var stocks = _context.Stocks.ToList()
+            // .Select is like mapping the list of Stock models to a list of Stock DTOs
+                .Select(s => new StockDto
+                {
+                    Id = s.Id,
+                    Symbol = s.Symbol,
+                    CompanyName = s.CompanyName,
+                    Purchase = s.Purchase,
+                    LastDiv = s.LastDiv,
+                    Industry = s.Industry,
+                    MarketCap = s.MarketCap
+                });
             return Ok(stocks);
         }
 
@@ -41,7 +51,7 @@ namespace WebApi.Controllers
             {
                 return NotFound();
             }
-            return Ok(stock);
+            return Ok(stock.ToStockDto());
         }
     }
 }
