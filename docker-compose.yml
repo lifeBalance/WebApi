@@ -1,0 +1,12 @@
+services:
+  sql:
+    image: mcr.microsoft.com/azure-sql-edge
+    container_name: sql
+    environment:
+      ACCEPT_EULA: "1"
+      MSSQL_SA_PASSWORD: "reallyStrongPwd123"
+      MSSQL_PID: "Developer"
+      MSSQL_USER: "SA"
+    ports:
+      - "1433:1433"
+    restart: always
