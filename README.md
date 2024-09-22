@@ -4,7 +4,7 @@ In order to [create a Web API with ASP.NET Core](https://learn.microsoft.com/en-
 
 - Authentication type: **none**
 - Configure for **HTTPS**
-- ~~Use **controllers**~~
+- Use **controllers**
 - Enable [Open API](https://www.openapis.org/) support (aka swagger)
 
 ## Launching the API
@@ -58,7 +58,11 @@ Since we generated our API with controllers, each **URL endpoint** can be found 
 
 ## Need to install
 
+To get our API going, we're gonna need to install a few things:
+
+- A **Relational Database Management System** (RDBMs), we'll go with SQL Server.
 ### Database
+- A **GUI** to interact with SQL server, in this case [Azure Data Studio](https://azure.microsoft.com/en-us/products/data-studio) ([DataGrip]() is cooler but costs money)
 
 We'll use [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) as our database, the problem is that is only for **Windows**! To address that problem, we'll use Docker:
 
@@ -119,7 +123,7 @@ The packages we need are:
 - `Microsoft.EntityFrameworkCore.Tools`, by Microsoft (just search for `tools`).
 - `Microsoft.EntityFrameworkCore.Design`, by Microsoft (just search for `design`).
 
-With the packages above, we'll be able to create our `ApplicationDBContext` class, which is what we use to fetch data from our DB as objects (this class inherits from `DbContext`, which is one of the classes included in `EntityFrameworkCore`)
+With the packages above, we'll be able to create our `ApplicationDBContext` class, which is what we'll inject in our controllers to fetch data from our DB as objects (this class inherits from `DbContext`, which is one of the classes included in `EntityFrameworkCore`)
 
 ## Creating a Database
 
@@ -190,3 +194,59 @@ GO
 ```
 
 Then I ran the migrations again and all was good.
+
+## Controllers
+
+**Web API** controllers should typically derive from [ControllerBase](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controllerbase) rather from [Controller](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.mvc.controller):
+
+>[!NOTE]
+> `Controller` derives from `ControllerBase` and adds support for **views**, so it's for handling web pages, not web API requests.
+
+### Interacting with a Database
+
+If our **controller** is gonna interact with a **database**, we must [inject](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-8.0) an **instance** of the [DbContext](https://learn.microsoft.com/en-us/dotnet/api/microsoft.entityframeworkcore.dbcontext?view=efcore-8.0) class. We do that in the **constructor**:
+
+```c#
+private readonly ApplicationDBContext _context;
+
+public StockController(ApplicationDBContext context)
+{
+    _context = context;
+}
+```
+
+> [!TIP]
+> That can also be done in a [primary constructor](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/instance-constructors#primary-constructors)
+>
+> ```c#
+> public class StockController(ApplicationDBContext context) : ControllerBase
+> {
+>     // Hold an instance of ApplicationDBContext
+>     private readonly ApplicationDBContext _context = context;
+>     ...
+> }
+> ```
+
+### Attribute Routing
+
+[Attribute routing](https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-8.0#attribute-routing-for-rest-apis) consists on using [C# attributes](https://learn.microsoft.com/en-us/dotnet/csharp/advanced-topics/reflection-and-attributes/) to easily map our [controller actions](https://learn.microsoft.com/en-us/aspnet/mvc/overview/older-versions-1/controllers-and-routing/creating-an-action-cs):
+
+- To **endpoints** in our API (URLs), for example, `[Route("api/books")]`.
+- To **HTTP verbs** in our API, for example, `[HttpGet]` or `[HttpPost]`.
+
+Often, the **routes** in a **controller** all start with the same **prefix**, such as `api/books` or `api/users`. In that case we can use the `[RoutePrefix]` attribute, at the **class level**.
+
+> [!TIP]
+> Use a tilde (`~`) on the method attribute to override the route prefix at a **method level**.
+
+🦊 Read more about [attribute routing](https://learn.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/attribute-routing-in-web-api-2). 🦊 
+
+### ApiController attribute
+
+The [ApiController attribute](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-8.0#apicontroller-attribute) can be applied to a **controller class** to enable the following opinionated, **API-specific** behaviors:
+
+- Attribute routing requirement
+- Automatic HTTP 400 responses
+- Binding source parameter inference
+- Multipart/form-data request inference
+- Problem details for error status codes
