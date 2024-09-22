@@ -152,14 +152,41 @@ We have to add a connection string in our `appsettings.Development.json` file:
 > [!TIP]
 > Check [this site](https://www.connectionstrings.com/sql-server/) for learn about connection strings.
 
-## Migration
+## Migrations
 
-In order to create the database you need to run 2 commands:
+In order to create the **database tables** you need to run 2 commands:
 
 ```
-dotnet ef migrations add init
+dotnet ef migrations add InitialMigration
 dotnet ef database update
 ```
 
 > [!WARNING]
 > In order to run the commands above, you need to install the `dotnet-ef` tool, so run `dotnet tool install --global dotnet-ef`.
+
+After the migrations run successfully:
+
+- A new `Migrations` folder will show up in our project.
+- Also, if you **refresh** your `finshark` database, you should be able to see the newly created **tables**
+
+## Deleting a Database from Azure Data Studio
+
+When I run the migrations the **1st time** and restarted the app, I received the following warning:
+
+```
+warning CS8981: The type name 'init' only contains lower-cased ascii characters. Such names may become reserved for the language.
+```
+
+That's because I named my first migration as `dotnet ef migrations add init`. So I decided to **delete** the `Migrations` folder, and the database as well:
+
+```sql
+USE master;
+GO
+
+ALTER DATABASE finshark SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+GO
+DROP DATABASE finshark;
+GO
+```
+
+Then I ran the migrations again and all was good.
