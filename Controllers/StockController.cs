@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 using WebApi.DTO;
 using WebApi.Mappers;
@@ -25,12 +26,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetStocks()
+        public async Task<IActionResult> GetStocks()
         {
-            // Return the DTOs instead of the models
-            var stocks = _context.Stocks.ToList()
-            // .Select is like mapping the list of Stock models to a list of Stock DTOs
-                .Select(s => new StockDto
+            // Get all the stocks from the database
+            var stocks = await _context.Stocks.ToListAsync();
+
+            // Map the list of Stock models to a list of Stock DTOs
+            var stocksDto = stocks
+                .Select(s => new StockDto // .Select() is a LINQ method
                 {
                     Id = s.Id,
                     Symbol = s.Symbol,
@@ -40,13 +43,14 @@ namespace WebApi.Controllers
                     Industry = s.Industry,
                     MarketCap = s.MarketCap
                 });
+            // Return the DTOs instead of the models
             return Ok(stocks);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetStock([FromRoute] int id)
+        public async Task<IActionResult> GetStock([FromRoute] int id)
         {
-            var stock = _context.Stocks.FirstOrDefault(s => s.Id == id);
+            var stock = await _context.Stocks.FindAsync(id);
             if (stock == null)
             {
                 return NotFound();
@@ -55,7 +59,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateStock([FromBody] CreateStockRequestDto stockDto)
+        public async Task<IActionResult> CreateStock([FromBody] CreateStockRequestDto stockDto)
         {
             // Convert the DTO to a model
             var stockModel = new Models.Stock
@@ -68,17 +72,17 @@ namespace WebApi.Controllers
                 MarketCap = stockDto.MarketCap
             };
             // Track the model in the context
-            _context.Stocks.Add(stockModel);
+            await _context.Stocks.AddAsync(stockModel);
             // Save the changes to the database
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateStock([FromRoute] int id, [FromBody] UpdateStockRequestDto stockDto)
+        public async Task<IActionResult> UpdateStock([FromRoute] int id, [FromBody] UpdateStockRequestDto stockDto)
         {
             // Find the stock by id
-            var stockModel = _context.Stocks.FirstOrDefault(s => s.Id == id);
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(s => s.Id == id);
             if (stockModel == null)
             {
                 return NotFound();
@@ -94,21 +98,22 @@ namespace WebApi.Controllers
             stockModel.MarketCap = stockDto.MarketCap;
 
             // Save the changes to the database
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             // return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
             return Ok(stockModel.ToStockDto());
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteStock([FromRoute] int id)
+        public async Task<IActionResult> DeleteStock([FromRoute] int id)
         {
-            var stockModel = _context.Stocks.FirstOrDefault(s => s.Id == id);
+            var stockModel = await _context.Stocks.FirstOrDefaultAsync(s => s.Id == id);
             if (stockModel == null)
             {
                 return NotFound();
             }
+            // Do not add the await to the Remove method
             _context.Stocks.Remove(stockModel);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
