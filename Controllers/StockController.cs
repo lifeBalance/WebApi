@@ -55,7 +55,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateStock([FromBody] FromDtoToStock stockDto)
+        public IActionResult CreateStock([FromBody] CreateStockRequestDto stockDto)
         {
             // Convert the DTO to a model
             var stockModel = new Models.Stock
@@ -72,6 +72,32 @@ namespace WebApi.Controllers
             // Save the changes to the database
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
+        }
+
+        [HttpPut]
+        [Route("api/{id}")]
+        public IActionResult UpdateStock([FromRoute] int id, [FromBody] UpdateStockRequestDto stockDto)
+        {
+            // Find the stock by id
+            var stockModel = _context.Stocks.FirstOrDefault(s => s.Id == id);
+            if (stockModel == null)
+            {
+                return NotFound();
+            }
+
+            // When EF finds the stock entity, it will start tracking it in the context.
+            // (full) Update the stock model with the DTO
+            stockModel.Symbol = stockDto.Symbol;
+            stockModel.CompanyName = stockDto.CompanyName;
+            stockModel.Purchase = stockDto.Purchase;
+            stockModel.LastDiv = stockDto.LastDiv;
+            stockModel.Industry = stockDto.Industry;
+            stockModel.MarketCap = stockDto.MarketCap;
+
+            // Save the changes to the database
+            _context.SaveChanges();
+            // return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
+            return Ok(stockModel.ToStockDto());
         }
     }
 }

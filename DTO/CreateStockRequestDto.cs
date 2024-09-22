@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebApi.DTO
 {
-    public class FromDtoToStock
+    public class CreateStockRequestDto
     {
         public string Symbol { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
