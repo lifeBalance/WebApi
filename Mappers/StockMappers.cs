@@ -1,4 +1,5 @@
-using WebApi.DTO; // Import the DTO namespace so I can use the StockDto class.
+using WebApi.DTO;
+using WebApi.Models; // Import the DTO namespace so I can use the StockDto class.
 
 namespace WebApi.Mappers
 {
@@ -16,6 +17,19 @@ namespace WebApi.Mappers
                 LastDiv = stockModel.LastDiv,
                 Industry = stockModel.Industry,
                 MarketCap = stockModel.MarketCap
+            };
+        }
+
+        public static Stock FromDtoToStock(this StockDto stockDto)
+        {
+            return new Models.Stock
+            {
+                Symbol = stockDto.Symbol,
+                CompanyName = stockDto.CompanyName,
+                Purchase = stockDto.Purchase,
+                LastDiv = stockDto.LastDiv,
+                Industry = stockDto.Industry,
+                MarketCap = stockDto.MarketCap
             };
         }
     }

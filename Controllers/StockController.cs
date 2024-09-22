@@ -53,5 +53,25 @@ namespace WebApi.Controllers
             }
             return Ok(stock.ToStockDto());
         }
+
+        [HttpPost]
+        public IActionResult CreateStock([FromBody] FromDtoToStock stockDto)
+        {
+            // Convert the DTO to a model
+            var stockModel = new Models.Stock
+            {
+                Symbol = stockDto.Symbol,
+                CompanyName = stockDto.CompanyName,
+                Purchase = stockDto.Purchase,
+                LastDiv = stockDto.LastDiv,
+                Industry = stockDto.Industry,
+                MarketCap = stockDto.MarketCap
+            };
+            // Track the model in the context
+            _context.Stocks.Add(stockModel);
+            // Save the changes to the database
+            _context.SaveChanges();
+            return CreatedAtAction(nameof(GetStock), new { id = stockModel.Id }, stockModel.ToStockDto());
+        }
     }
 }

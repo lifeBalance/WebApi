@@ -268,16 +268,29 @@ For organization, we can create a `DTOs` folder, where we'll place a subfolder f
 >
 > DTOs are used for trimming down the **entities** from a data store before sending them to the client.
 
-In many applications, usually there are 2 levels of **models**: 
-
-1. **Domain internal models**, which we defined in the `Models` folder.
-2. **Public models**, which are often called DTOs (data transfer objects).
-
-DTOs are the models consumed by a **client**, and usually they are tinier than their domain counterparts. Also, a DTO model may contain properties from few domain models.
-
 ### Mappers
 
 Mappers facilitate the conversion of data between different representations, such as between **DTOs** and **domain entities**.
 
-1. **Entity to DTO**: When we fetch an entity from the database, the mapper extracts the relevant information and converts it into a simpler DTO.
-2. **DTO to Entity**: When we receive a DTO (e.g., from a user input form), the mapper takes that DTO and converts it back into a full entity.
+1. **Entity to DTO**: When we fetch an entity from the database, the mapper extracts the relevant information and converts it into a simpler DTO before sending it to the **client**.
+2. **DTO to Entity**: When we receive a DTO (e.g., from a user input form), the mapper takes that DTO and converts it back into a full entity, before storing it in the **database**.
+
+> [!NOTE]
+> In many applications, usually there are 2 levels of **models**: 
+> 
+> 1. **Domain internal models**, which we defined in the `Models` folder.
+> 2. **Public models**, which are often called DTOs (data transfer objects).
+> 
+> DTOs are the models consumed by a **client**, and usually they are tinier than their domain counterparts. Also, a DTO model may contain properties from few domain models.
+
+## POST: Writing to the Database
+
+Whenever we have to interact with the **database**, we'll be using [Entity Framework](https://learn.microsoft.com/en-us/ef/), by far the most popular **ORM** for [.NET](https://dotnet.microsoft.com/en-us/).
+
+> [!NOTE]
+> **Entity Framework** is a modern **object-relation mapper** that lets you build a high-level **data access layer** across a variety of databases, including **SQL Databases** (SQLite, MySQL, PostgreSQL), and **Azure Cosmos DB**. It supports [LINQ](https://learn.microsoft.com/en-us/dotnet/csharp/linq/) queries, change tracking, updates, and schema migrations.
+
+When writing to the database, we need to use a couple of **EF** methods:
+
+- One for tracking the data we want to write: `_context.Movies.Add()`
+- Another one for actually saving the **tracked data** to the database: `_context.Movies.SaveChanges()`
