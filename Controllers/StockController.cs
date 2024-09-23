@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 using WebApi.DTO;
+using WebApi.Interfaces;
 using WebApi.Mappers;
 
 namespace WebApi.Controllers
@@ -10,11 +11,16 @@ namespace WebApi.Controllers
     [ApiController]
     public class StockController : ControllerBase
     {
+        // MARKED FOR REMOVAL: DBContext; delete when IStockRepository is implemented
+        // in all the methods.
+
         // Hold an instance of ApplicationDBContext
         private readonly ApplicationDBContext _context;
+        // Repository pattern
+        private readonly IStockRepository _stockRepo;
 
         // Inject an instance of ApplicationDBContext into the controller
-        public StockController(ApplicationDBContext context)
+        public StockController(ApplicationDBContext context, IStockRepository stockRepo)
         {
             // If you want to throw an exception when context is null,
             // you can use the following line:
@@ -22,14 +28,15 @@ namespace WebApi.Controllers
 
             // Let's keep it simple for now
             _context = context; // context may be null here
+            _stockRepo = stockRepo;
 
         }
 
         [HttpGet]
         public async Task<IActionResult> GetStocks()
         {
-            // Get all the stocks from the database
-            var stocks = await _context.Stocks.ToListAsync();
+            // Get all the stocks from the repository (db agnostic)
+            var stocks = await _stockRepo.GetAllAsync();
 
             // Map the list of Stock models to a list of Stock DTOs
             var stocksDto = stocks

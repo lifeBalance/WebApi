@@ -294,3 +294,41 @@ When writing to the database, we need to use a couple of **EF** methods:
 
 - One for tracking the data we want to write: `_context.Movies.Add()`
 - Another one for actually saving the **tracked data** to the database: `_context.Movies.SaveChanges()`
+
+## Repository Pattern
+
+So far, our **controller methods** include logic that interacts directly with the **database**, via the **Entity Framework**. But what if in the future we decided to replace **EF** for another **ORM** or even fetch the domain objects from a different **API**.
+
+> [!NOTE]
+> The four layers in typical **DDD** implementations are:
+> 
+> - Domain Layer
+> - Application Layer
+> - Infrastructure Layer
+> - User Interface (Presentation) Layer
+
+The idea behind this pattern is to create some classes to encapsulate the logic that deals with data persistence concerns. That way, our controllers interact with the **domain objects** through objects (**repositories**) of this new **abstraction layer**.
+
+> [!NOTE]
+> Using this pattern we won't have to inject the **database context** into the **controller constructors**.
+
+To implement our **repositories** we'll use:
+
+- [C# interfaces](https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/interfaces), which we'll store under a folder named `Interfaces`. Each **interface repository name** will follow the convention:
+
+```
+I + repositoryName + Repository
+```
+
+For example, our repository for stocks will be called `IStockRepository`, and the one for comments `ICommentRepository`.
+
+- C# classes, which we'll keep under the `Repository` folder.
+
+Once all is done, we need to wire them up in `Program.cs`:
+
+```c#
+builder.Services.AddScoped<IStockRepository, StockRepository>();
+```
+
+> [!WARNING]
+> Remember to **restart** your app after the changes; the `watch` can't handle the heat!
