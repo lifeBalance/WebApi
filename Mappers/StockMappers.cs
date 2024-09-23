@@ -1,5 +1,6 @@
 using WebApi.DTO;
 using WebApi.Models; // Import the DTO namespace so I can use the StockDto class.
+using WebApi.Mappers;
 
 namespace WebApi.Mappers
 {
@@ -16,7 +17,8 @@ namespace WebApi.Mappers
                 Purchase = stockModel.Purchase,
                 LastDiv = stockModel.LastDiv,
                 Industry = stockModel.Industry,
-                MarketCap = stockModel.MarketCap
+                MarketCap = stockModel.MarketCap,
+                Comments = stockModel.Comments.Select(c => CommentMapper.ToCommentDto(c)).ToList()
             };
         }
 

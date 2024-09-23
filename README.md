@@ -332,3 +332,20 @@ builder.Services.AddScoped<IStockRepository, StockRepository>();
 
 > [!WARNING]
 > Remember to **restart** your app after the changes; the `watch` can't handle the heat!
+
+## Handling JSON
+
+For handling JSON in our app, we need to install 2 packages:
+
+- Newtonsoft.Json
+- Microsoft.AspNetCore.Mvc.NewtonsoftJson
+
+> We can do that from **NuGet Gallery**.
+
+Then we have to add the following lines to our `Program.cs` file:
+```cs
+builder.Services.AddControllers()
+.AddNewtonJson(options => {
+  options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+});
+```

@@ -18,5 +18,10 @@ namespace WebApi.Repositories
         {
             return await _context.Comments.ToListAsync();
         }
+
+        public async Task<Comment?> GetCommentByIdAsync(int id)
+        {
+            return await _context.Comments.FindAsync(id).AsTask();
+        }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 using WebApi.DTO;
 using WebApi.Interfaces;
+using WebApi.Mappers;
 using WebApi.Models;
 
 namespace WebApi.Repositories
@@ -20,13 +21,13 @@ namespace WebApi.Repositories
         public async Task<List<Stock>> GetAllStocksAsync()
         {
             // Get all the stocks from the database (using an EF Core method)
-            return await _context.Stocks.ToListAsync();
+            return await _context.Stocks.Include(c => c.Comments).ToListAsync();
         }
 
         public async Task<Stock?> GetStockByIdAsync(int id)
         {
             // Get a stock by its ID
-            return await _context.Stocks.FindAsync(id).AsTask();
+            return await _context.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<Stock> CreateStockAsync(Stock stockModel)
