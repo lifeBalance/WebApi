@@ -22,7 +22,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> GetAllComments()
         {
             var comments = await _commentRepo.GetAllCommentsAsync();
-            
+
             var commentDto = comments
                 .Select(c => CommentMapper.ToCommentDto(c));
 
@@ -46,7 +46,6 @@ namespace WebApi.Controllers
         [HttpPost("{stockId}")]
         public async Task<IActionResult> CreateComment([FromRoute] int stockId, CreateCommentDto commentDto)
         {
-            System.Console.WriteLine("stockId: " + stockId);
             var stockModelExists = await _stockRepo.StockExistsAsync(stockId);
             if (!stockModelExists)
             {
@@ -58,6 +57,19 @@ namespace WebApi.Controllers
             var commentResponse = CommentMapper.ToCommentDto(createdComment);
 
             return CreatedAtAction(nameof(GetCommentById), new { id = createdComment.Id }, commentResponse);
+        }
+
+        [HttpPut("{stockId}")]
+        public async Task<IActionResult> UpdateComment([FromRoute] int stockId, [FromBody] UpdateCommentRequestDto updatedCommentDto)
+        {
+            System.Console.WriteLine("stockId: " + stockId);
+            var comment = await _commentRepo.UpdateCommentAsync(stockId, updatedCommentDto);
+            if (comment == null)
+            {
+                return BadRequest("Comment not found");
+            }
+
+            return Ok(CommentMapper.ToCommentDto(comment));
         }
     }
 }

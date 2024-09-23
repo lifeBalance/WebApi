@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
+using WebApi.DTO;
 using WebApi.Interfaces;
 using WebApi.Models;
 
@@ -30,6 +31,23 @@ namespace WebApi.Repositories
             await _context.SaveChangesAsync();
 
             return commentModel;
+        }
+
+        public async Task<Comment?> UpdateCommentAsync(int id, UpdateCommentRequestDto commentDto)
+        {
+            var existingCommentModel = await _context.Comments.FindAsync(id);
+            if (existingCommentModel == null)
+            {
+                return null;
+            }
+
+            existingCommentModel.Title = commentDto.Title;
+            existingCommentModel.Content = commentDto.Content;
+
+            // The model is already being tracked by the context
+            await _context.SaveChangesAsync();
+
+            return existingCommentModel;
         }
     }
 }
