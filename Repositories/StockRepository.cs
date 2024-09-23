@@ -72,5 +72,11 @@ namespace WebApi.Repositories
 
             return stockModel;
         }
+
+        public async Task<bool> StockExistsAsync(int id)
+        {
+            // Check if a stock exists by its ID
+            return await _context.Stocks.AnyAsync(e => e.Id == id);
+        }
     }
 }

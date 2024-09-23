@@ -10,5 +10,6 @@ namespace WebApi.Interfaces
     {
         Task<List<Comment>> GetAllCommentsAsync();
         Task<Comment?> GetCommentByIdAsync(int id);
+        Task<Comment> CreateCommentAsync(Comment commentModel);
     }
 }

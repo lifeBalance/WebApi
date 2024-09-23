@@ -23,5 +23,13 @@ namespace WebApi.Repositories
         {
             return await _context.Comments.FindAsync(id).AsTask();
         }
+
+        public async Task<Comment> CreateCommentAsync(Comment commentModel)
+        {
+            await _context.Comments.AddAsync(commentModel);
+            await _context.SaveChangesAsync();
+
+            return commentModel;
+        }
     }
 }
