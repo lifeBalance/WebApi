@@ -13,5 +13,7 @@ namespace WebApi.Interfaces
         Task<Comment?> GetCommentByIdAsync(int id);
         Task<Comment> CreateCommentAsync(Comment commentModel);
         Task<Comment?> UpdateCommentAsync(int stockId, UpdateCommentRequestDto updatedCommentDto);
+        Task<Comment?> DeleteCommentAsync(int id);
+
     }
 }

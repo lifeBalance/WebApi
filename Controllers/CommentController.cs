@@ -71,5 +71,18 @@ namespace WebApi.Controllers
 
             return Ok(CommentMapper.ToCommentDto(comment));
         }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteComment([FromRoute] int id)
+        {
+            var commentModel = await _commentRepo.DeleteCommentAsync(id);
+            if (commentModel == null)
+            {
+                return NotFound("Comment not found");
+            }
+
+            return Ok(CommentMapper.ToCommentDto(commentModel));
+        }
     }
 }
