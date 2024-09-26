@@ -349,3 +349,28 @@ builder.Services.AddControllers()
   options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 });
 ```
+
+## Data Validation
+
+Add your data validation:
+
+- In the **route attributes**, `[Route("{id:int}")]`. That's enough in `GET` requests for an item with some id.
+- For validating data incoming in the *request body**, we'll use the [DataAnotations](https://learn.microsoft.com/en-us/dotnet/api/system.componentmodel.dataannotations?view=net-8.0) namespace.
+
+Data anotations look like:
+```cs
+[Required]
+[MinLength(5, ErrorMessage = "Title must be at least 5 characters long")]
+[MaxLength(250, ErrorMessage = "Title must be at most 250 characters long")]
+public string Title { get; set; } = string.Empty;
+```
+
+You should put them on top of the methods of your DTOs, not the models.
+
+Then we have to add the following lines in our **controller actions**:
+```cs
+if(!ModelState.IsValid)
+  return BadRequest(ModelState);
+```
+
+This `ModelState` comes included in the `ControllerBase`.

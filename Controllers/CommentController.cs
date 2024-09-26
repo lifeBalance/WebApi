@@ -29,9 +29,12 @@ namespace WebApi.Controllers
             return Ok(commentDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetCommentById([FromRoute] int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var comment = await _commentRepo.GetCommentByIdAsync(id);
             if (comment == null)
             {
@@ -43,9 +46,12 @@ namespace WebApi.Controllers
             return Ok(commentDto);
         }
 
-        [HttpPost("{stockId}")]
+        [HttpPost("{stockId:int}")]
         public async Task<IActionResult> CreateComment([FromRoute] int stockId, CreateCommentDto commentDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var stockModelExists = await _stockRepo.StockExistsAsync(stockId);
             if (!stockModelExists)
             {
@@ -59,9 +65,12 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetCommentById), new { id = createdComment.Id }, commentResponse);
         }
 
-        [HttpPut("{stockId}")]
+        [HttpPut("{stockId:int}")]
         public async Task<IActionResult> UpdateComment([FromRoute] int stockId, [FromBody] UpdateCommentRequestDto updatedCommentDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             System.Console.WriteLine("stockId: " + stockId);
             var comment = await _commentRepo.UpdateCommentAsync(stockId, updatedCommentDto);
             if (comment == null)
@@ -73,9 +82,12 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> DeleteComment([FromRoute] int id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var commentModel = await _commentRepo.DeleteCommentAsync(id);
             if (commentModel == null)
             {
