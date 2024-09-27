@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 using WebApi.DTO;
+using WebApi.Helpers;
 using WebApi.Interfaces;
 using WebApi.Mappers;
 
@@ -33,10 +34,10 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStocks()
+        public async Task<IActionResult> GetStocks([FromQuery] QueryObject queryObject)
         {
             // Get all the stocks from the repository (db agnostic)
-            var stocks = await _stockRepo.GetAllStocksAsync();
+            var stocks = await _stockRepo.GetAllStocksAsync(queryObject);
 
             // Map the list of Stock models to a list of Stock DTOs
             var stocksDto = stocks

@@ -374,3 +374,53 @@ if(!ModelState.IsValid)
 ```
 
 This `ModelState` comes included in the `ControllerBase`.
+
+## Filtering Data
+
+We're writing all our **database access logic** in the `repositories` folder; there we files which contain classes for dealing with our database. In these classes we're injecting our **database context**, and calling methods through it.
+
+> [!NOTE]
+> The **database context** has **getter/setter** methods for each of the **agregate roots** or **entities** of our **domain model**.
+
+So far we've been using [LINQ](https://learn.microsoft.com/en-us/dotnet/csharp/linq/) queries to interact with the **Entity Framework** in an **object oriented** way (`ToList`, `FindAsync`, `FirstOrDefaultAsync`, etc). These methods usually return [IEnumerable](https://learn.microsoft.com/en-us/dotnet/api/system.collections.ienumerable?view=net-8.0), which are collections of data.
+
+> [!NOTE]
+> These methods generate **SQL**, which is what SQL databases understand.
+
+Sometimes we need to write more elaborated queries to **filter** our data collection, according to some criteria. For these scenarios, we have to use [AsQueryable](https://learn.microsoft.com/en-us/dotnet/api/system.linq.queryable.asqueryable?view=net-8.0) to convert the `IEnumerable` to [IQueryable](https://learn.microsoft.com/en-us/dotnet/api/system.linq.iqueryable?view=net-8.0):
+
+```cs
+var stocks = _context.Stocks.AsQueryable();
+```
+
+Once we have an `IQueryable`, we can do [lots of stuff](https://learn.microsoft.com/en-us/dotnet/framework/data/adonet/ef/language-reference/supported-and-unsupported-linq-methods-linq-to-entities) with it:
+
+- Filter according to some predicate using [WHERE](https://learn.microsoft.com/en-us/dotnet/api/system.linq.queryable.where?view=net-8.0#system-linq-queryable-where-1(system-linq-iqueryable((-0))-system-linq-expressions-expression((system-func((-0-system-boolean)))))):
+
+```cs
+stocks.Where(s => s.Symbol == symbol);
+```
+
+- Limit:
+
+```cs
+stocks.Limit(3);
+```
+
+## Passing the Filter Criteria to the Repository Method
+
+The user-supplied values to filter queries must be passed in the controller, to whatever **repository** method we want to filter, for example:
+
+```cs
+var stocks = await _stockRepo.GetAllAsync(query);
+```
+
+## Editing our Repository and Repository Interface
+
+Then, we need to modify our repository and its interface, so that the method now accepts the query:
+
+
+
+## Query String Helpers
+
+A nice little technique to deal with long query strings, is to create a `QueryObject` class (we can store it in a `Helpers` folder), and add properties to each of the **key/values** of our [query string](https://en.wikipedia.org/wiki/Query_string).

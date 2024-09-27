@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
 using WebApi.DTO;
+using WebApi.Helpers;
 using WebApi.Interfaces;
 using WebApi.Mappers;
 using WebApi.Models;
@@ -18,10 +19,21 @@ namespace WebApi.Repositories
         }
 
         // We need to implement the methods defined in the interface.
-        public async Task<List<Stock>> GetAllStocksAsync()
+        public async Task<List<Stock>> GetAllStocksAsync(QueryObject queryObject)
         {
             // Get all the stocks from the database (using an EF Core method)
-            return await _context.Stocks.Include(c => c.Comments).ToListAsync();
+            // return await _context.Stocks.Include(c => c.Comments).ToListAsync();
+            var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
+            
+            if (!string.IsNullOrWhiteSpace(queryObject.CompanyName))
+            {
+                stocks = stocks.Where(s => s.CompanyName.Contains(queryObject.CompanyName));
+            }
+            if (!string.IsNullOrWhiteSpace(queryObject.Symbol))
+            {
+                stocks = stocks.Where(s => s.Symbol.Contains(queryObject.Symbol));
+            }
+            return await stocks.ToListAsync();
         }
 
         public async Task<Stock?> GetStockByIdAsync(int id)
