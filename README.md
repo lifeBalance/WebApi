@@ -417,9 +417,21 @@ var stocks = await _stockRepo.GetAllAsync(query);
 
 ## Editing our Repository and Repository Interface
 
-Then, we need to modify our repository and its interface, so that the method now accepts the query:
+Then, we need to modify our repository and its interface, so that the method now accepts the query.
 
+## Sorting
 
+For sorting, we need to have a new conditional statement to check if the user added some **sorting** criteria:
+
+```cs
+if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
+{
+    if (queryObject.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+    {
+        stocks = queryObject.IsSortDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
+    }
+}
+```
 
 ## Query String Helpers
 

@@ -24,7 +24,7 @@ namespace WebApi.Repositories
             // Get all the stocks from the database (using an EF Core method)
             // return await _context.Stocks.Include(c => c.Comments).ToListAsync();
             var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
-            
+
             if (!string.IsNullOrWhiteSpace(queryObject.CompanyName))
             {
                 stocks = stocks.Where(s => s.CompanyName.Contains(queryObject.CompanyName));
@@ -32,6 +32,17 @@ namespace WebApi.Repositories
             if (!string.IsNullOrWhiteSpace(queryObject.Symbol))
             {
                 stocks = stocks.Where(s => s.Symbol.Contains(queryObject.Symbol));
+            }
+            if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
+            {
+                if (queryObject.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = queryObject.IsSortDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
+                }
+                if (queryObject.SortBy.Equals("CompanyName", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = queryObject.IsSortDescending ? stocks.OrderByDescending(s => s.CompanyName) : stocks.OrderBy(s => s.CompanyName);
+                }
             }
             return await stocks.ToListAsync();
         }
