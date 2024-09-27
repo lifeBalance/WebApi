@@ -433,6 +433,22 @@ if (!string.IsNullOrWhiteSpace(queryObject.SortBy))
 }
 ```
 
+## Pagination
+
+[Pagination](https://learn.microsoft.com/en-us/ef/core/querying/pagination) is done by combining the `Skip` and `Take` methods:
+
+- `Skip` is for skipping records.
+- `Take` is for, you guessed it, taking records.
+
+```cs
+// Pagination
+// If page number is 1, we skip 0 records(because 1 - 1 = 0).
+// If page number is 2, we skip 1 * pageSize records.
+var skipNumber = (queryObject.PageNumber - 1) * queryObject.PageSize;
+
+return await stocks.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
+```
+
 ## Query String Helpers
 
 A nice little technique to deal with long query strings, is to create a `QueryObject` class (we can store it in a `Helpers` folder), and add properties to each of the **key/values** of our [query string](https://en.wikipedia.org/wiki/Query_string).

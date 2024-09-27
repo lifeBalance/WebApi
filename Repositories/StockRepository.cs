@@ -44,7 +44,12 @@ namespace WebApi.Repositories
                     stocks = queryObject.IsSortDescending ? stocks.OrderByDescending(s => s.CompanyName) : stocks.OrderBy(s => s.CompanyName);
                 }
             }
-            return await stocks.ToListAsync();
+            // Pagination
+            // If page number is 1, we skip 0 records(because 1 - 1 = 0).
+            // If page number is 2, we skip 1 * pageSize records.
+            var skipNumber = (queryObject.PageNumber - 1) * queryObject.PageSize;
+
+            return await stocks.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
         }
 
         public async Task<Stock?> GetStockByIdAsync(int id)
