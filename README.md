@@ -452,3 +452,103 @@ return await stocks.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
 ## Query String Helpers
 
 A nice little technique to deal with long query strings, is to create a `QueryObject` class (we can store it in a `Helpers` folder), and add properties to each of the **key/values** of our [query string](https://en.wikipedia.org/wiki/Query_string).
+
+## Authentication - JWT (JSON Web Tokens)
+
+[JWT](https://jwt.io/) is an open standard for securely transmitting information between parties as a JSON object. Basically, when the user successfully **authenticates**, it's given a **JWT** which will be included in all subsequent API calls in order to be able to access to the API resources.
+
+In order to use JWT in our **ASP.NET Core** application we need to install the following packages:
+
+- [Microsoft.Extensions.Identity.Core](https://www.nuget.org/packages/Microsoft.Extensions.Identity.Core)
+- [Microsoft.AspNetCore.Identity.EntityFrameworkCore](https://www.nuget.org/packages/Microsoft.AspNetCore.Identity.EntityFrameworkCore)
+- [Microsoft.AspNetCore.Authentication.JwtBearer](https://www.nuget.org/packages/Microsoft.AspNetCore.Authentication.JwtBearer)
+
+Which we can install with:
+```
+dotnet add package Microsoft.Extensions.Identity.Core
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+```
+
+### Adding a User Model
+
+The `Microsoft.AspNetCore.Identity` namespace gives us access to an `IdentityUser` class that comes with some **default properties**:
+
+- Email
+- Password
+- Password confirmation
+
+We'll create an `AppUser` model which inherits from `IdentityUser`, and expand the properties mentioned above.
+
+### Inherit from `IdentityDbContext`
+
+Now we have to modify our `ApplicationDBContext` so that now it will inherit from `IdentityDbContext` (instead of just `DbContext`), which is a class also included in `EntityFrameworkCore`. We need to pass into it the `AppUser` model:
+
+```cs
+public class ApplicationDBContext : IdentityDbContext<AppUser>
+```
+
+### Wire Up in Program.cs
+
+Just add the lines:
+
+```cs
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    options.Password.RequiredLength = 8;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireDigit = true;
+    options.Password.RequireNonAlphanumeric = true;
+})
+.AddEntityFrameworkStores<ApplicationDBContext>();
+```
+
+For the **JWT** `Issuer`, `Audience` and `SigningKey`, we need to add it to our `appsettings.json`:
+```json
+"AllowedHosts": "*",
+"JWT": {
+  "Issuer": "http://localhost:5028",
+  "Audience": "http://localhost:5028",
+  "SigningKey": "supersecretword"
+}
+```
+
+And then we can use them in our `Program.cs`:
+```cs
+builder.Services.AddAuthentication(options => {
+    options.DefaultScheme = 
+    options.DefaultAuthenticateScheme = 
+    options.DefaultChallengeScheme = 
+    options.DefaultSignInScheme = 
+    options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options => {
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:Audience"], // add values from appsettings.json
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
+        ),
+    }; 
+});
+```
+
+Finally, we have to add the lines:
+```cs
+app.UseAuthentication();
+app.UseAuthorization();
+```
+
+### Migrations
+
+We need to run:
+```
+dotnet ef migrations add IdentityMigration
+dotnet ef database update
+```
+
+Check your DB tables to see the new users stuff.
