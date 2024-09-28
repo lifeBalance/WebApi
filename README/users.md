@@ -163,3 +163,72 @@ We need to do several things here:
   - The token **payload** (which contains the claims)
 
 Then we can refactor our `AccountController` so that when a user is successfully created, we return our JWT (actually we return a `NewUserDto` that contains the token, username, and email)
+
+## Log In
+
+Generally speaking, **logging in** consists basically in checking if a user's submitted credentials match the ones stored in the database. In our case we'll have to:
+
+- Find the submitted **username** in the DB.
+- Checking that the **submitted password** matches the one of the found user.
+
+We'll be implementing this functionality in the `AccountController` class, under a new **action** named `Login`. To verify the credentials, there are two ways:
+
+1. Using the [UserManager.CheckPasswordAsync](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.signinmanager-1.passwordsigninasync?view=aspnetcore-8.0) method, which hashes the provided password and compares it against the existing password hash (stored in the database).
+
+2. Using the [SigningManager.CheckPasswordSignInAsync](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.signinmanager-1.checkpasswordsigninasync?view=aspnetcore-8.0) method, which does many more things than the method above:
+
+- Checks whether sign-in is allowed. For example, if the user should confirm the **account creation email** before being allowed to sign-in; if she hasn't, the method returns `SignInResult.Failed`.
+- Calls `UserManager.CheckPasswordAsync` to check that the password is correct (as detailed above).
+  - If the password is not correct and **lockout** is supported, the method tracks the failed sign-in attempt. If the configured amount of failed sign-in attempts is exceeded, the method locks the user out.
+  - If two-factor authentication is enabled for the user, the method sets up the relevant cookie and returns `SignInResult.TwoFactorRequired`.
+- Finally, performs the sign-in process, which ends up creating a `ClaimsPrincipal` and persisting it via a **cookie**.
+
+## Authorization
+
+Once a user logs in, we may use the information contained in the **JWT** to **authorize** the users to access certain resources. We can easily test this out by adding the [Authorize](https://learn.microsoft.com/en-us/aspnet/core/security/authorization/simple?view=aspnetcore-8.0) attribute to any **controller** or **action**, for example, to the `GetStocks` method.
+
+> [!WARNING]
+> Read the **next section** in order to configure Swagger to hold JWTs (and send them in the requests headers).
+
+Then, we can try to send a request from Swagger to this endpoint, and we should be getting a `401 Error: Unauthorized`. What we should do is login, grab the JWT from the response, and paste it in the new **Authorization** box; that should give us access to the `GetStocks` endpoint, and to any endpoint with the `[Authorize]` attribute on.
+
+### Swagger Configuration to send JWTs
+
+Once a user successfully logs in, we're sending the **JWT** in the response, but wouldn't be nice, if we could configure **Swagger** so that we can send this token in our **request headers**? The configuration below does exactly that:
+
+```cs
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+```
+
+Just add it to your `Program.cs` file.
+
+>[!WARNING]
+> You must **restart the server** in order to see the new **Authorize** button.
+
+

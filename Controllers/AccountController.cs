@@ -12,11 +12,51 @@ namespace WebApi.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly SignInManager<AppUser> _signInManager;
 
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService)
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _signInManager = signInManager;
+        }
+
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var user = await _userManager.FindByNameAsync(loginDto.Username);
+                if (user == null)
+                {
+                    return Unauthorized("Invalid username or password");
+                }
+
+                // var passwordValid = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+                var passwordValid = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false); // false means we don't want to lock the user out
+                if (!passwordValid.Succeeded)
+                {
+                    return Unauthorized("Invalid username or password");
+                }
+
+                return Ok(new NewUserDto
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+                throw;
+            }
         }
 
         [HttpPost]
