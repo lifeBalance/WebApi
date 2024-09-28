@@ -6,6 +6,7 @@ using WebApi.Data;
 using WebApi.Interfaces;
 using WebApi.Models;
 using WebApi.Repositories;
+using WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +64,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 // Not sure if it's necessary to add the repositories as services
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
