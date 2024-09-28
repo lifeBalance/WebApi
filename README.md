@@ -552,3 +552,40 @@ dotnet ef database update
 ```
 
 Check your DB tables to see the new users stuff.
+
+## Creating Users (Sign up - Register)
+
+Adding logic for creating users is a little bit involved, especially because we'll be adding **user roles**. These are the steps we have to follow:
+
+- **Controller**: We need a controller to receive the request and create a **user** with a **role** (check the `AccountController.cs`).
+- **DTO**: We'll define a DTO for the request body used in the controller (check the `RegisterDto.cs`).
+- Customize the [model](https://learn.microsoft.com/en-us/ef/core/modeling/) by overriding the `OnModelCreating` method in our database context (check `ApplicationDBContext.cs`).
+- We have to run a **migration** to add the **roles** for `User` and `Admin` to the `AspNetRoles` table.
+
+> [!NOTE]
+> EF Core uses a **metadata model** to describe how the application's entity types are mapped to the underlying database.
+
+The `Microsoft.AspNetCore.Identity` namespace includes a class named [UserManager](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.usermanager-1?view=aspnetcore-8.0), which provides **methods** for, well, managing users.
+
+### Account Controller
+
+1. Here we start by injecting the [UserManager](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.usermanager-1?view=aspnetcore-8.0) class into our controller.
+2. Then create an **action** to handle the `POST` request to the `/api/account/register` endpoint. Here we have to:
+  - **Validate** the data incoming in the **request body**, so that it matches the **data type** used in the action parameters (`RegisterDto`). We do that using [model binding](https://learn.microsoft.com/en-us/aspnet/core/mvc/models/model-binding) which does all the validation work for us. We just have to use:
+  ```cs
+  if (!ModelState.IsValid)
+  {
+      return BadRequest(ModelState);
+  }
+  ```
+  - Then we just create both the **user** and the **role** by calling methods on `_userManager`.
+
+### Migrations
+
+We need to run:
+```
+dotnet ef migrations add SeedRolesMigration
+dotnet ef database update
+```
+
+Check your `AspNetRoles` table to check the roles are there.

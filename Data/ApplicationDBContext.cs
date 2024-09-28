@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Models;
@@ -18,5 +19,18 @@ namespace WebApi.Data
         // DbSet allows us to manipulate the database table (create tables, etc).
         public DbSet<Models.Stock> Stocks { get; set; } = null!;
         public DbSet<Models.Comment> Comments { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            List<IdentityRole> roles =
+            [
+                new() { Name = "Admin", NormalizedName = "ADMIN" },
+                new() { Name = "User", NormalizedName = "USER" }
+            ];
+
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
+        }
     }
 }
