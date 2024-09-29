@@ -54,7 +54,7 @@ To run it, just execute `docker-compose up -d` in your terminal.
 
 As a GUI to SQL server we'll use [Azure Data Studio](https://azure.microsoft.com/en-us/products/data-studio). Just download it, and connect to the SQL runnning on Docker. For the settings used in the `docker-compose.yml` above, we'll use the following in **Azure Data Studio**:
 
-![Azure Data Studio](./README/azure-data-studio.png)
+![Azure Data Studio](./azure-data-studio.png)
 
 ---
 [:arrow_backward:][back] ║ [:house:][home] ║ [:arrow_forward:][next]

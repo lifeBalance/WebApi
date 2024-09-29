@@ -123,5 +123,5 @@ A nice little technique to deal with long query strings, is to create a `QueryOb
 
 <!-- navigation -->
 [home]: /README.md
-[back]: ./models.md
-[next]: ./dtos.md
+[back]: ./project.md
+[next]: ./models.md

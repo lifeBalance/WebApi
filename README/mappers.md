@@ -19,4 +19,4 @@ Mappers facilitate the conversion of data between different representations, suc
 <!-- navigation -->
 [home]: /README.md
 [back]: ./dtos.md
-[next]: #
+[next]: ./repositories.md

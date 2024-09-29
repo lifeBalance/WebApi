@@ -122,10 +122,11 @@ var skipNumber = (queryObject.PageNumber - 1) * queryObject.PageSize;
 
 return await stocks.Skip(skipNumber).Take(queryObject.PageSize).ToListAsync();
 ```
+
 ---
 [:arrow_backward:][back] ║ [:house:][home] ║ [:arrow_forward:][next]
 
 <!-- navigation -->
 [home]: /README.md
 [back]: ./dtos.md
-[next]: #
+[next]: ./users.md

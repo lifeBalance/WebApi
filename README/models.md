@@ -93,5 +93,5 @@ Then I ran the migrations again and all was good.
 
 <!-- navigation -->
 [home]: /README.md
-[back]: ./generate-project.md
-[next]: ./controllers.md
+[back]: ./controllers.md
+[next]: ./dtos.md

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebApi.Models
 {
+    [Table("Stocks")]
     public class Stock
     {
         public int Id { get; set; }
@@ -22,5 +23,8 @@ namespace WebApi.Models
 
         // One-to-Many relationship: Stock to Comments (ONE Stock can have MANY Comments)
         public List<Comment> Comments { get; set; } = new List<Comment>(); // = []
+
+        // Many to Many relationship: Stock to Portfolios (MANY Stocks can be in MANY Portfolios)
+        public List<Portfolio> Portfolios { get; set; } = new List<Portfolio>();
     }
 }

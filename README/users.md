@@ -232,3 +232,10 @@ Just add it to your `Program.cs` file.
 > You must **restart the server** in order to see the new **Authorize** button.
 
 
+---
+[:arrow_backward:][back] ║ [:house:][home] ║ [:arrow_forward:][next]
+
+<!-- navigation -->
+[home]: /README.md
+[back]: ./repositories.md
+[next]: #
